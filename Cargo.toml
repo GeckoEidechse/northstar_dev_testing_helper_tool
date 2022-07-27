@@ -1,15 +1,15 @@
 [package]
-name = "eframe_template"
-default-run = "eframe_template_bin"
+name = "northstar_dev_testing_helper_tool"
+default-run = "northstar_dev_testing_helper_tool_bin"
 version = "0.1.0"
-authors = ["Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"]
+authors = ["GeckoEidechse <gecko.eidechse+git@pm.me>"]
 edition = "2021"
 rust-version = "1.60"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "eframe_template_bin"
+name = "northstar_dev_testing_helper_tool_bin"
 path = "src/main.rs"
 
 [lib]

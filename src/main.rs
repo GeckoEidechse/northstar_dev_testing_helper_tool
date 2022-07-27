@@ -11,6 +11,6 @@ fn main() {
     eframe::run_native(
         "eframe template",
         native_options,
-        Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+        Box::new(|cc| Box::new(northstar_dev_testing_helper_tool::TemplateApp::new(cc))),
     );
 }
