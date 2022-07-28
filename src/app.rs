@@ -1,3 +1,9 @@
+use core::time;
+
+use self::util::apply_mods_pr;
+
+mod util;
+
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
@@ -7,15 +13,17 @@ pub struct TemplateApp {
 
     // this how you opt-out of serialization of a member
     #[serde(skip)]
-    value: f32,
+    value: i32,
+    json_response: serde_json::Value,
 }
 
 impl Default for TemplateApp {
     fn default() -> Self {
         Self {
             // Example stuff:
-            label: "Hello World!".to_owned(),
-            value: 2.7,
+            label: "/path/to/titanfall2".to_owned(),
+            value: 0,
+            json_response: serde_json::Value::Null,
         }
     }
 }
@@ -45,7 +53,18 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let Self { label, value } = self;
+        let Self {
+            label: game_install_path,
+            value,
+            json_response,
+        } = self;
+
+        if *value != 0 {
+            // Stupid way to get the error window to show for a bit
+            // This should be replaced with a proper implementation later
+            std::thread::sleep(time::Duration::from_millis(2000));
+            *value = 0;
+        }
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -66,14 +85,12 @@ impl eframe::App for TemplateApp {
         egui::SidePanel::left("side_panel").show(ctx, |ui| {
             ui.heading("Side Panel");
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(label);
-            });
+            ui.label("Titanfall2 install location:");
+            ui.text_edit_singleline(game_install_path);
 
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                *value += 1.0;
+            if ui.button("Check GitHub").clicked() {
+                *json_response = util::check_github_api().expect("Failed request").clone();
+                println!("{:#?}", json_response);
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -90,13 +107,54 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading("eframe template");
-            ui.hyperlink("https://github.com/emilk/eframe_template");
+            ui.heading("Northstar dev testing helper tool");
             ui.add(egui::github_link_file!(
-                "https://github.com/emilk/eframe_template/blob/master/",
+                "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
                 "Source code."
             ));
             egui::warn_if_debug_build(ui);
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                match json_response.as_array() {
+                    None => (),
+                    Some(json_response_array) => {
+                        for elem in json_response_array {
+                            let mut pr_number = 0;
+                            let mut pr_title = "";
+                            for val in elem.as_object().unwrap() {
+                                let (key, v) = val;
+
+                                if key == "number" {
+                                    pr_number = v.as_i64().unwrap();
+                                }
+                                if key == "title" {
+                                    pr_title = v.as_str().unwrap();
+                                }
+                            }
+                            ui.horizontal(|ui| {
+                                if ui.button("Apply PR").clicked() {
+                                    if !apply_mods_pr(
+                                        pr_number,
+                                        &game_install_path,
+                                        json_response.clone(),
+                                    ) {
+                                        ui.label("Failed");
+                                        egui::Window::new("Window").show(ctx, |ui| {
+                                            ui.label("Incorrect game path");
+                                        });
+                                        *value = 1;
+
+                                        // egui::containers::popup::popup_below_widget(
+                                        //     ui,
+                                        //     123,
+                                        // )
+                                    }
+                                }
+                                ui.label(format!("{}: {}", pr_number, pr_title));
+                            });
+                        }
+                    }
+                }
+            });
         });
 
         if false {

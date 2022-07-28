@@ -1,1 +1,5 @@
+# Rust builds
 /target
+
+# Fake Titanfall2 install folder
+titanfall2-fakepath/
