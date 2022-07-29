@@ -99,13 +99,13 @@ fn get_download_link(pr_number: i64, json_response: serde_json::Value) -> String
 
                             if key == "ref" {
                                 // println!("{}", v);
-                                json_key_ref = v.as_str().unwrap().clone();
+                                json_key_ref = v.as_str().unwrap();
                             }
                             if key == "repo" {
                                 for val in v.as_object().unwrap() {
                                     let (key, v) = val;
                                     if key == "full_name" {
-                                        json_key_fullname = v.as_str().unwrap().clone();
+                                        json_key_fullname = v.as_str().unwrap();
                                     }
                                 }
                             }
@@ -122,7 +122,7 @@ fn get_download_link(pr_number: i64, json_response: serde_json::Value) -> String
             }
         }
     }
-    return "".to_string();
+    "".to_string()
 }
 
 fn download_zip(download_url: String, location: String) {
@@ -162,12 +162,13 @@ pub fn apply_mods_pr(
     // TODO: delete downloaded zip folder again here
 
     // Delete previously managed folder
-    match std::fs::remove_dir_all(format!(
+    if std::fs::remove_dir_all(format!(
         "{}/R2Northstar-PR-test-managed-folder",
         game_install_path
-    )) {
-        Err(_) => panic!("Failed moving folder"),
-        Ok(_) => (),
+    ))
+    .is_err()
+    {
+        panic!("Failed moving folder")
     };
 
     // Move downloaded folder to game install folder
@@ -177,5 +178,5 @@ pub fn apply_mods_pr(
     )
     .unwrap();
 
-    return true;
+    true
 }

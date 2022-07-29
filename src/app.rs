@@ -89,7 +89,7 @@ impl eframe::App for TemplateApp {
             ui.text_edit_singleline(game_install_path);
 
             if ui.button("Check GitHub").clicked() {
-                *json_response = util::check_github_api().expect("Failed request").clone();
+                *json_response = util::check_github_api().expect("Failed request");
                 println!("{:#?}", json_response);
             }
 
@@ -132,11 +132,12 @@ impl eframe::App for TemplateApp {
                             }
                             ui.horizontal(|ui| {
                                 if ui.button("Apply PR").clicked() {
-                                    if !apply_mods_pr(
+                                    let apply_mods_pr_result = apply_mods_pr(
                                         pr_number,
-                                        &game_install_path,
+                                        game_install_path,
                                         json_response.clone(),
-                                    ) {
+                                    );
+                                    if !apply_mods_pr_result {
                                         ui.label("Failed");
                                         egui::Window::new("Window").show(ctx, |ui| {
                                             ui.label("Incorrect game path");
