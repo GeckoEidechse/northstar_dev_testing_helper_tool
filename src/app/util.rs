@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io;
+use std::path::Path;
 
 use reqwest::header::USER_AGENT;
 
@@ -134,6 +135,21 @@ fn download_zip(download_url: String, location: String) {
     println!("Download done");
 }
 
+/// Recursively copies files from one directory to another
+fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
+    fs::create_dir_all(&dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        if ty.is_dir() {
+            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        } else {
+            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        }
+    }
+    Ok(())
+}
+
 pub fn apply_mods_pr(
     pr_number: i64,
     game_install_path: &str,
@@ -159,6 +175,12 @@ pub fn apply_mods_pr(
 
     let zip_extract_folder_name = unzip("ns-dev-test-helper-temp-pr-files.zip");
 
+    println!("Zip extract done");
+
+    println!("Deleting temp zip download folder");
+
+    fs::remove_file("ns-dev-test-helper-temp-pr-files.zip").unwrap();
+
     // TODO: delete downloaded zip folder again here
 
     // Delete previously managed folder
@@ -168,15 +190,33 @@ pub fn apply_mods_pr(
     ))
     .is_err()
     {
-        panic!("Failed moving folder")
+        if std::path::Path::new(&format!(
+            "{}/R2Northstar-PR-test-managed-folder",
+            game_install_path
+        ))
+        .exists()
+        {
+            println!("Failed removing previous dir"); // TODO check if exists and only panic if no exists
+        } else {
+            println!("Failed removing folder that doesn't exist. Probably cause first run");
+        }
     };
 
-    // Move downloaded folder to game install folder
-    std::fs::rename(
-        zip_extract_folder_name,
+    println!("Copying files to Titanfall2 install");
+
+    // Copy downloaded folder to game install folder
+    copy_dir_all(
+        zip_extract_folder_name.clone(),
         format!("{}/R2Northstar-PR-test-managed-folder", game_install_path),
     )
     .unwrap();
+
+    println!("Deleting old unzipped folder");
+
+    // Delete old copy
+    std::fs::remove_dir_all(zip_extract_folder_name).unwrap();
+
+    println!("All done :D");
 
     true
 }
