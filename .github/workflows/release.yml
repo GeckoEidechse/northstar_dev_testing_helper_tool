@@ -21,26 +21,26 @@ jobs:
           profile: minimal
           override: true
           components: rustfmt, clippy
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1.0.6
         name: Check format
         with:
           command: fmt
           args: --all -- --check
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1.0.6
         name: Run clippy
         with:
           command: clippy
           args: --all-targets --locked -- -D warnings
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1.0.6
         name: Run clippy (All features)
         with:
           command: clippy
           args: --all-targets --locked --all-features -- -D warnings
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1.0.6
         name: Run tests
         with:
           command: test
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1.0.6
         name: Build
         with:
           command: build
