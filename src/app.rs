@@ -4,6 +4,8 @@ use self::util::apply_mods_pr;
 
 mod util;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
@@ -107,7 +109,7 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading("Northstar dev testing helper tool");
+            ui.heading(format!("Northstar dev testing helper tool (v{})", VERSION));
             ui.add(egui::github_link_file!(
                 "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
                 "Source code."
