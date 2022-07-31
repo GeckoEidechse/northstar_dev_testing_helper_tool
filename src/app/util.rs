@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io;
+use std::io::prelude::*;
 use std::path::Path;
 
 use reqwest::header::USER_AGENT;
@@ -152,6 +153,27 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> 
     Ok(())
 }
 
+fn add_batch_file(game_install_path: &str) {
+    let batch_path = format!("{}/r2ns-launch-mod-pr-version.bat", game_install_path);
+    let path = Path::new(&batch_path);
+    let display = path.display();
+
+    // Open a file in write-only mode, returns `io::Result<File>`
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+
+    // Write the string to `file`, returns `io::Result<()>`
+    let batch_file_content =
+        "NorthstarLauncher.exe -profile=R2Northstar-PR-test-managed-folder\r\n";
+
+    match file.write_all(batch_file_content.as_bytes()) {
+        Err(why) => panic!("couldn't write to {}: {}", display, why),
+        Ok(_) => println!("successfully wrote to {}", display),
+    }
+}
+
 pub fn apply_mods_pr(
     pr_number: i64,
     game_install_path: &str,
@@ -220,6 +242,10 @@ pub fn apply_mods_pr(
 
     // Delete old copy
     std::fs::remove_dir_all(zip_extract_folder_name).unwrap();
+
+    println!("Adding batch file to 1-click-run PR");
+
+    add_batch_file(game_install_path);
 
     println!("All done :D");
 
