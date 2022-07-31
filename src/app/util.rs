@@ -69,6 +69,7 @@ fn unzip(zip_file_name: &str) -> String {
 }
 
 pub fn check_github_api() -> Result<serde_json::Value, Box<dyn Error>> {
+    println!("Checking GitHub API");
     let github_repo_api_pulls_url = "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls";
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
     let client = reqwest::blocking::Client::new();
@@ -80,6 +81,7 @@ pub fn check_github_api() -> Result<serde_json::Value, Box<dyn Error>> {
     // println!("{:#?}", res);
 
     let json: serde_json::Value = serde_json::from_str(&res).expect("JSON was not well-formatted");
+    println!("Done checking GitHub API");
 
     Ok(json)
 }

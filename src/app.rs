@@ -91,7 +91,6 @@ impl eframe::App for TemplateApp {
 
             if ui.button("Check GitHub").clicked() {
                 *json_response = util::check_github_api().expect("Failed request");
-                println!("{:#?}", json_response);
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
