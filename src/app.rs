@@ -1,10 +1,9 @@
 use core::time;
 
 use self::util::apply_mods_pr;
+use self_update::cargo_crate_version;
 
 mod util;
-
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -109,7 +108,10 @@ impl eframe::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading(format!("Northstar dev testing helper tool (v{})", VERSION));
+            ui.heading(format!(
+                "Northstar dev testing helper tool (v{})",
+                cargo_crate_version!()
+            ));
             ui.add(egui::github_link_file!(
                 "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
                 "Source code."
