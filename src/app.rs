@@ -15,6 +15,8 @@ pub struct TemplateApp {
     // this how you opt-out of serialization of a member
     #[serde(skip)]
     value: i32,
+
+    #[serde(skip)]
     json_response: serde_json::Value,
 }
 
