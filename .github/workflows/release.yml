@@ -1,0 +1,75 @@
+name: CD Native
+
+# https://github.com/r-darwish/topgrade/blob/020a0619b87e657ec71529dcd2da7b53a5b152ce/.github/workflows/release.yml
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ ubuntu-latest, macos-latest, windows-latest ]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.62.0
+          profile: minimal
+          override: true
+          components: rustfmt, clippy
+      - uses: actions-rs/cargo@v1.0.1
+        name: Check format
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/cargo@v1.0.1
+        name: Run clippy
+        with:
+          command: clippy
+          args: --all-targets --locked -- -D warnings
+      - uses: actions-rs/cargo@v1.0.1
+        name: Run clippy (All features)
+        with:
+          command: clippy
+          args: --all-targets --locked --all-features -- -D warnings
+      - uses: actions-rs/cargo@v1.0.1
+        name: Run tests
+        with:
+          command: test
+      - uses: actions-rs/cargo@v1.0.1
+        name: Build
+        with:
+          command: build
+          args: --release --all-features
+      - name: Rename Release (Unix)
+        run: |
+          cargo install default-target
+          mkdir assets
+          FILENAME=northstar_dev_testing_helper_tool_bin-${{github.event.release.tag_name}}-$(default-target)
+          mv target/release/northstar_dev_testing_helper_tool_bin assets
+          cd assets
+          tar --format=ustar -czf $FILENAME.tar.gz northstar_dev_testing_helper_tool_bin
+          rm northstar_dev_testing_helper_tool_bin
+          ls .
+        if: ${{ matrix.platform != 'windows-latest' }}
+        shell: bash
+      - name: Rename Release (Windows)
+        run: |
+          cargo install default-target
+          mkdir assets
+          FILENAME=northstar_dev_testing_helper_tool_bin-${{github.event.release.tag_name}}-$(default-target)
+          mv target/release/northstar_dev_testing_helper_tool_bin.exe assets/northstar_dev_testing_helper_tool_bin.exe
+          cd assets
+          powershell Compress-Archive -Path * -Destination ${FILENAME}.zip
+          rm northstar_dev_testing_helper_tool_bin.exe
+          ls .
+        if: ${{ matrix.platform == 'windows-latest' }}
+        shell: bash
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: assets/*
