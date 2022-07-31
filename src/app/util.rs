@@ -209,7 +209,10 @@ pub fn apply_mods_pr(
     // Copy downloaded folder to game install folder
     copy_dir_all(
         zip_extract_folder_name.clone(),
-        format!("{}/R2Northstar-PR-test-managed-folder", game_install_path),
+        format!(
+            "{}/R2Northstar-PR-test-managed-folder/mods",
+            game_install_path
+        ),
     )
     .unwrap();
 
