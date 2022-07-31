@@ -1331,7 +1331,7 @@ dependencies = [
 
 [[package]]
 name = "northstar_dev_testing_helper_tool"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "console_error_panic_hook",
  "eframe",
