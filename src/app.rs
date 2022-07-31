@@ -118,7 +118,9 @@ impl eframe::App for TemplateApp {
             egui::warn_if_debug_build(ui);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 match json_response.as_array() {
-                    None => (),
+                    None => {
+                        ui.label("No data, use refresh button on sidebar");
+                    }
                     Some(json_response_array) => {
                         for elem in json_response_array {
                             let mut pr_number = 0;
