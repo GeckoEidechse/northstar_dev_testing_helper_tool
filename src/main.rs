@@ -10,6 +10,7 @@ pub fn do_self_update() -> Result<(), Box<dyn ::std::error::Error>> {
         .bin_name("northstar_dev_testing_helper_tool_bin") // <-- name of the binary in the zip to use to replcae current version with
         .show_download_progress(true)
         .current_version(cargo_crate_version!())
+        .no_confirm(true)
         .build()?
         .update()?;
     println!("Update status: `{}`!", status.version());
