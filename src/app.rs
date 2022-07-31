@@ -89,7 +89,7 @@ impl eframe::App for TemplateApp {
             ui.label("Titanfall2 install location:");
             ui.text_edit_singleline(game_install_path);
 
-            if ui.button("Check GitHub").clicked() {
+            if ui.button("Refresh NorthstarMods PRs").clicked() {
                 *json_response = util::check_github_api().expect("Failed request");
             }
 
