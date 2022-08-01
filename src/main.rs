@@ -28,7 +28,7 @@ fn main() {
 
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
-        "eframe template",
+        "northstar_dev_testing_helper_tool",
         native_options,
         Box::new(|cc| Box::new(northstar_dev_testing_helper_tool::TemplateApp::new(cc))),
     );
