@@ -136,7 +136,8 @@ fn download_zip(download_url: String, location: String) {
     let mut resp = client
         .get(download_url)
         .header(USER_AGENT, user_agent)
-        .send().unwrap();
+        .send()
+        .unwrap();
     let mut out = File::create(format!("{}/ns-dev-test-helper-temp-pr-files.zip", location))
         .expect("failed to create file");
     io::copy(&mut resp, &mut out).expect("failed to copy content");
