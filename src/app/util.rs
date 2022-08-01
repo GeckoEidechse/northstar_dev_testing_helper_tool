@@ -69,9 +69,9 @@ fn unzip(zip_file_name: &str) -> String {
     folder_name
 }
 
-pub fn check_github_api() -> Result<serde_json::Value, Box<dyn Error>> {
+pub fn check_github_api(url: &str) -> Result<serde_json::Value, Box<dyn Error>> {
     println!("Checking GitHub API");
-    let github_repo_api_pulls_url = "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls";
+    let github_repo_api_pulls_url = url;
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
     let client = reqwest::blocking::Client::new();
     let res = client

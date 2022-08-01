@@ -92,7 +92,10 @@ impl eframe::App for TemplateApp {
             ui.text_edit_singleline(game_install_path);
 
             if ui.button("Refresh NorthstarMods PRs").clicked() {
-                *json_response = util::check_github_api().expect("Failed request");
+                *json_response = util::check_github_api(
+                    "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls",
+                )
+                .expect("Failed request");
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
