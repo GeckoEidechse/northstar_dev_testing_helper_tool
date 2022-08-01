@@ -1,6 +1,6 @@
 use core::time;
 
-use self::util::apply_mods_pr;
+use self::util::{apply_launcher_pr, apply_mods_pr};
 use self_update::cargo_crate_version;
 
 mod util;
@@ -98,6 +98,18 @@ impl eframe::App for TemplateApp {
                 .expect("Failed request");
             }
 
+            ui.label("\n"); // simple spacer
+
+            if ui
+                .button("Refresh NorthstarLauncher PRs\n(install is WIP)")
+                .clicked()
+            {
+                *json_response = util::check_github_api(
+                    "https://api.github.com/repos/R2Northstar/NorthstarLauncher/pulls",
+                )
+                .expect("Failed request");
+            }
+
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 ui.horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = 0.0;
@@ -130,6 +142,7 @@ impl eframe::App for TemplateApp {
                         for elem in json_response_array {
                             let mut pr_number = 0;
                             let mut pr_title = "";
+                            let mut pr_url = "";
                             for val in elem.as_object().unwrap() {
                                 let (key, v) = val;
 
@@ -139,20 +152,38 @@ impl eframe::App for TemplateApp {
                                 if key == "title" {
                                     pr_title = v.as_str().unwrap();
                                 }
+                                if key == "url" {
+                                    pr_url = v.as_str().unwrap();
+                                }
                             }
                             ui.horizontal(|ui| {
                                 if ui.button("Apply PR").clicked() {
-                                    let apply_mods_pr_result = apply_mods_pr(
-                                        pr_number,
-                                        game_install_path,
-                                        json_response.clone(),
-                                    );
-                                    if !apply_mods_pr_result {
-                                        ui.label("Failed");
-                                        egui::Window::new("Window").show(ctx, |ui| {
-                                            ui.label("Incorrect game path");
-                                        });
-                                        *value = 1;
+                                    if pr_url.contains("NorthstarLauncher") {
+                                        let apply_launcher_pr_result = apply_launcher_pr(
+                                            pr_number,
+                                            game_install_path,
+                                            json_response.clone(),
+                                        );
+                                        if !apply_launcher_pr_result {
+                                            ui.label("Failed");
+                                            egui::Window::new("Window").show(ctx, |ui| {
+                                                ui.label("Incorrect game path");
+                                            });
+                                            *value = 1;
+                                        }
+                                    } else {
+                                        let apply_mods_pr_result = apply_mods_pr(
+                                            pr_number,
+                                            game_install_path,
+                                            json_response.clone(),
+                                        );
+                                        if !apply_mods_pr_result {
+                                            ui.label("Failed");
+                                            egui::Window::new("Window").show(ctx, |ui| {
+                                                ui.label("Incorrect game path");
+                                            });
+                                            *value = 1;
+                                        }
 
                                         // egui::containers::popup::popup_below_widget(
                                         //     ui,

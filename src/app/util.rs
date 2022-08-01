@@ -69,6 +69,60 @@ fn unzip(zip_file_name: &str) -> String {
     folder_name
 }
 
+fn unzip_launcher_zip(zip_file_name: &str) -> String {
+    let outfolder_name = "ns-dev-test-helper-temp-pr-files";
+    let fname = std::path::Path::new(zip_file_name);
+    let file = fs::File::open(&fname).unwrap();
+
+    let mut archive = zip::ZipArchive::new(file).unwrap();
+
+    fs::create_dir_all(outfolder_name).unwrap();
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).unwrap();
+        let outpath = match file.enclosed_name() {
+            Some(path) => path.to_owned(),
+            None => continue,
+        };
+
+        {
+            let comment = file.comment();
+            if !comment.is_empty() {
+                println!("File {} comment: {}", i, comment);
+            }
+        }
+
+        // Only extract two hardcoded files
+        if *file.name() == *"NorthstarLauncher.exe" || *file.name() == *"Northstar.dll" {
+            println!(
+                "File {} extracted to \"{}\" ({} bytes)",
+                i,
+                outpath.display(),
+                file.size()
+            );
+            if let Some(p) = outpath.parent() {
+                if !p.exists() {
+                    fs::create_dir_all(&p).unwrap();
+                }
+            }
+            let mut outfile =
+                fs::File::create(format!("{}/{}", outfolder_name, outpath.display())).unwrap();
+            io::copy(&mut file, &mut outfile).unwrap();
+        }
+
+        // Get and Set permissions
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            if let Some(mode) = file.unix_mode() {
+                fs::set_permissions(&outpath, fs::Permissions::from_mode(mode)).unwrap();
+            }
+        }
+    }
+    outfolder_name.to_string()
+}
+
 pub fn check_github_api(url: &str) -> Result<serde_json::Value, Box<dyn Error>> {
     println!("Checking GitHub API");
     let github_repo_api_pulls_url = url;
@@ -129,6 +183,70 @@ fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> S
     "".to_string()
 }
 
+fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
+    // Crossreference with runs API
+    let runs_json_response =
+        check_github_api("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs")
+            .expect("Failed request");
+
+    // Get top commit SHA
+    for elem in json_response.as_array().unwrap() {
+        for val in elem.as_object().unwrap() {
+            let (key, v) = val;
+
+            if key == "number" && v.as_i64().unwrap() == pr_number {
+                let mut json_key_merge_commit_sha = "";
+                let mut json_key_head_sha = "";
+                let mut json_key_id = 0;
+                let mut json_key_sha = "";
+                for val in elem.as_object().unwrap() {
+                    let (key, v) = val;
+
+                    if key == "merge_commit_sha" {
+                        json_key_merge_commit_sha = v.as_str().unwrap();
+                    }
+
+                    if key == "head" {
+                        for val in v.as_object().unwrap() {
+                            let (key, v) = val;
+
+                            if key == "sha" {
+                                println!("{}", v);
+                                json_key_sha = v.as_str().unwrap();
+                            }
+                        }
+                    }
+                }
+                for val in runs_json_response.as_object().unwrap() {
+                    let (key, v) = val;
+                    if key == "workflow_runs" {
+                        for elem in v.as_array().unwrap() {
+                            for val in elem.as_object().unwrap() {
+                                let (key, v) = val;
+                                if key == "head_sha" {
+                                    json_key_head_sha = v.as_str().unwrap();
+                                }
+                                if key == "id" {
+                                    json_key_id = v.as_i64().unwrap();
+                                }
+                            }
+                            // Get run ID
+                            if json_key_head_sha == json_key_sha {
+                                dbg!(json_key_id);
+                                dbg!(json_key_sha);
+                                dbg!(json_key_merge_commit_sha);
+
+                                return format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    "".to_string()
+}
+
 fn download_zip(download_url: String, location: String) {
     println!("Downloading file");
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
@@ -178,6 +296,53 @@ fn add_batch_file(game_install_path: &str) {
         Err(why) => panic!("couldn't write to {}: {}", display, why),
         Ok(_) => println!("successfully wrote to {}", display),
     }
+}
+
+pub fn apply_launcher_pr(
+    pr_number: i64,
+    game_install_path: &str,
+    json_response: serde_json::Value,
+) -> bool {
+    println!("{}", pr_number);
+    println!("{}", game_install_path);
+    let is_correct_game_path =
+        std::path::Path::new(&format!("{}/Titanfall2.exe", game_install_path)).exists();
+    println!("Titanfall2.exe exists in path? {}", is_correct_game_path);
+
+    // Exit early if wrong game path
+    if !is_correct_game_path {
+        println!("Incorrect path");
+        return false; // Return false to signal error, should use enum or option in the future
+    }
+
+    // get download link
+    let download_url = get_launcher_download_link(pr_number, json_response);
+
+    println!("{}", download_url);
+
+    // download
+    download_zip(download_url, ".".to_string());
+
+    // extract
+    let zip_extract_folder_name = unzip_launcher_zip("ns-dev-test-helper-temp-pr-files.zip");
+
+    println!("Zip extract done");
+
+    println!("Deleting temp zip download folder");
+
+    fs::remove_file("ns-dev-test-helper-temp-pr-files.zip").unwrap();
+
+    // Copy downloaded folder to game install folder
+    copy_dir_all(zip_extract_folder_name.clone(), game_install_path).unwrap();
+
+    println!("Deleting old unzipped folder");
+
+    // Delete old copy
+    std::fs::remove_dir_all(zip_extract_folder_name).unwrap();
+
+    println!("All done :D");
+
+    true
 }
 
 pub fn apply_mods_pr(
