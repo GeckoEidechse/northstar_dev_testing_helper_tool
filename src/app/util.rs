@@ -131,7 +131,12 @@ fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> S
 
 fn download_zip(download_url: String, location: String) {
     println!("Downloading file");
-    let mut resp = reqwest::blocking::get(download_url).expect("request failed");
+    let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
+    let client = reqwest::blocking::Client::new();
+    let mut resp = client
+        .get(download_url)
+        .header(USER_AGENT, user_agent)
+        .send().unwrap();
     let mut out = File::create(format!("{}/ns-dev-test-helper-temp-pr-files.zip", location))
         .expect("failed to create file");
     io::copy(&mut resp, &mut out).expect("failed to copy content");
