@@ -87,7 +87,7 @@ pub fn check_github_api() -> Result<serde_json::Value, Box<dyn Error>> {
     Ok(json)
 }
 
-fn get_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
+fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
     for elem in json_response.as_array().unwrap() {
         for val in elem.as_object().unwrap() {
             let (key, v) = val;
@@ -191,7 +191,7 @@ pub fn apply_mods_pr(
         return false; // Return false to signal error, should use enum or option in the future
     }
 
-    let download_url = get_download_link(pr_number, json_response);
+    let download_url = get_mods_download_link(pr_number, json_response);
 
     println!("{}", download_url);
 
