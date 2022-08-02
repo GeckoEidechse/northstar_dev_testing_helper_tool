@@ -48,10 +48,10 @@ jobs:
       - name: Rename Release (Unix)
         run: |
           cargo install default-target
-          mkdir assets
+          mkdir release-assets
           FILENAME=northstar_dev_testing_helper_tool_bin-${{github.event.release.tag_name}}-$(default-target)
-          mv target/release/northstar_dev_testing_helper_tool_bin assets
-          cd assets
+          mv target/release/northstar_dev_testing_helper_tool_bin release-assets
+          cd release-assets
           tar --format=ustar -czf $FILENAME.tar.gz northstar_dev_testing_helper_tool_bin
           rm northstar_dev_testing_helper_tool_bin
           ls .
@@ -60,10 +60,10 @@ jobs:
       - name: Rename Release (Windows)
         run: |
           cargo install default-target
-          mkdir assets
+          mkdir release-assets
           FILENAME=northstar_dev_testing_helper_tool_bin-${{github.event.release.tag_name}}-$(default-target)
-          mv target/release/northstar_dev_testing_helper_tool_bin.exe assets/northstar_dev_testing_helper_tool_bin.exe
-          cd assets
+          mv target/release/northstar_dev_testing_helper_tool_bin.exe release-assets/northstar_dev_testing_helper_tool_bin.exe
+          cd release-assets
           powershell Compress-Archive -Path * -Destination ${FILENAME}.zip
           rm northstar_dev_testing_helper_tool_bin.exe
           ls .
@@ -72,4 +72,4 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: assets/*
+          files: release-assets/*
