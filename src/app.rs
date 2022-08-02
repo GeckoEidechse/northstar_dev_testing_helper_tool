@@ -128,10 +128,10 @@ impl eframe::App for TemplateApp {
                 "Northstar dev testing helper tool (v{})",
                 cargo_crate_version!()
             ));
-            ui.add(egui::github_link_file!(
+            ui.hyperlink_to(
+                "Source Code",
                 "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
-                "Source code."
-            ));
+            );
             egui::warn_if_debug_build(ui);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 match json_response.as_array() {
