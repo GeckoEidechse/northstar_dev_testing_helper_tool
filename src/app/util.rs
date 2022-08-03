@@ -180,7 +180,7 @@ fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> S
             }
         }
     }
-    "".to_string()
+    todo!();
 }
 
 fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
@@ -244,7 +244,7 @@ fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) 
             }
         }
     }
-    "".to_string()
+    todo!();
 }
 
 fn download_zip(download_url: String, location: String) {
