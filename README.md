@@ -5,7 +5,7 @@
 
 A small tool to ease in testing PRs for [Northstar](https://github.com/R2Northstar/).
 
-Allows for 1-click download of a PR to Titanfall2 install folder.
+Allows for 1-click download of a PR to Titanfall2 install folder as a separate profile. Also places a batch file into your Titanfall2 folder called `r2ns-launch-mod-pr-version.bat` which launches Northstar with the PR profile.
 
 > **Note:** This tool is aimed at developers and expects a working Northstar install. Further it gives no guarantees to maintaining your Northstar install. Do not complain if your Northstar install breaks and requires reinstalling Northstar!
 >
