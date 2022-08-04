@@ -91,6 +91,8 @@ impl eframe::App for TemplateApp {
             ui.label("Titanfall2 install location:");
             ui.text_edit_singleline(game_install_path);
 
+            ui.label(""); // simple spacer
+
             if ui.button("Refresh NorthstarMods PRs").clicked() {
                 *json_response = util::check_github_api(
                     "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls",
@@ -98,7 +100,7 @@ impl eframe::App for TemplateApp {
                 .expect("Failed request");
             }
 
-            ui.label("\n"); // simple spacer
+            ui.label(""); // simple spacer
 
             if ui
                 .button("Refresh NorthstarLauncher PRs\n(install is WIP)")
