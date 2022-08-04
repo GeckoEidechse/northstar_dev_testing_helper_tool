@@ -249,7 +249,7 @@ fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) 
     todo!();
 }
 
-fn download_zip(download_url: String, location: String) {
+fn download_zip(download_url: String, location: String) -> Result<(), anyhow::Error> {
     println!("Downloading file");
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
     let client = reqwest::blocking::Client::new();
@@ -262,13 +262,18 @@ fn download_zip(download_url: String, location: String) {
     // Error out earlier if non-successful response
     if !resp.status().is_success() {
         println!("Status: {}", resp.status());
-        todo!("Handle non-successful responses");
+        // Return error cause wrong game path
+        return Err(anyhow!(
+            "Couldn't download zip. Received error code \"{}\"",
+            resp.status()
+        ));
     }
 
     let mut out = File::create(format!("{}/ns-dev-test-helper-temp-pr-files.zip", location))
         .expect("failed to create file");
     io::copy(&mut resp, &mut out).expect("failed to copy content");
     println!("Download done");
+    Ok(())
 }
 
 /// Recursively copies files from one directory to another
@@ -337,7 +342,7 @@ pub fn apply_launcher_pr(
     println!("{}", download_url);
 
     // download
-    download_zip(download_url, ".".to_string());
+    download_zip(download_url, ".".to_string())?;
 
     // extract
     let zip_extract_folder_name = unzip_launcher_zip("ns-dev-test-helper-temp-pr-files.zip");
@@ -376,7 +381,7 @@ pub fn apply_mods_pr(
 
     println!("{}", download_url);
 
-    download_zip(download_url, ".".to_string());
+    download_zip(download_url, ".".to_string())?;
 
     let zip_extract_folder_name = unzip("ns-dev-test-helper-temp-pr-files.zip");
 
