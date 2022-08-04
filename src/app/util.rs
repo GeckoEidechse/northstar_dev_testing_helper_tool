@@ -307,6 +307,18 @@ fn add_batch_file(game_install_path: &str) {
     }
 }
 
+fn check_game_path(game_install_path: &str) -> Result<(), anyhow::Error> {
+    let is_correct_game_path =
+        std::path::Path::new(&format!("{}/Titanfall2.exe", game_install_path)).exists();
+    println!("Titanfall2.exe exists in path? {}", is_correct_game_path);
+
+    // Exit early if wrong game path
+    if !is_correct_game_path {
+        return Err(anyhow!("Incorrect game path \"{}\"", game_install_path)); // Return error cause wrong game path
+    }
+    Ok(())
+}
+
 pub fn apply_launcher_pr(
     pr_number: i64,
     game_install_path: &str,
@@ -314,14 +326,9 @@ pub fn apply_launcher_pr(
 ) -> Result<(), anyhow::Error> {
     println!("{}", pr_number);
     println!("{}", game_install_path);
-    let is_correct_game_path =
-        std::path::Path::new(&format!("{}/Titanfall2.exe", game_install_path)).exists();
-    println!("Titanfall2.exe exists in path? {}", is_correct_game_path);
 
     // Exit early if wrong game path
-    if !is_correct_game_path {
-        return Err(anyhow!("Incorrect path \"{}\"", game_install_path)); // Return error cause wrong game path
-    }
+    check_game_path(game_install_path)?;
 
     // get download link
     let download_url = get_launcher_download_link(pr_number, json_response);
@@ -360,14 +367,9 @@ pub fn apply_mods_pr(
 ) -> Result<(), anyhow::Error> {
     println!("{}", pr_number);
     println!("{}", game_install_path);
-    let is_correct_game_path =
-        std::path::Path::new(&format!("{}/Titanfall2.exe", game_install_path)).exists();
-    println!("Titanfall2.exe exists in path? {}", is_correct_game_path);
 
     // Exit early if wrong game path
-    if !is_correct_game_path {
-        return Err(anyhow!("Incorrect path \"{}\"", game_install_path)); // Return error cause wrong game path
-    }
+    check_game_path(game_install_path)?;
 
     let download_url = get_mods_download_link(pr_number, json_response);
 
