@@ -171,7 +171,7 @@ impl eframe::App for TemplateApp {
                                             Err(err) => {
                                                 println!("{}", err);
                                                 ui.label("Failed");
-                                                egui::Window::new("Window").show(ctx, |ui| {
+                                                egui::Window::new("Error").show(ctx, |ui| {
                                                     ui.label(format!("Error: {}", err));
                                                 });
                                                 *value = 1;
@@ -188,7 +188,7 @@ impl eframe::App for TemplateApp {
                                             Err(err) => {
                                                 println!("{}", err);
                                                 ui.label("Failed");
-                                                egui::Window::new("Window").show(ctx, |ui| {
+                                                egui::Window::new("Error").show(ctx, |ui| {
                                                     ui.label(format!("Error: {}", err));
                                                 });
                                                 *value = 1;
