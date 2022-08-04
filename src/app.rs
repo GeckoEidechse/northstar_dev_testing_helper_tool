@@ -65,7 +65,7 @@ impl eframe::App for TemplateApp {
         if *value != 0 {
             // Stupid way to get the error window to show for a bit
             // This should be replaced with a proper implementation later
-            std::thread::sleep(time::Duration::from_millis(2000));
+            std::thread::sleep(time::Duration::from_millis(3000));
             *value = 0;
         }
 
