@@ -166,12 +166,16 @@ impl eframe::App for TemplateApp {
                                             game_install_path,
                                             json_response.clone(),
                                         );
-                                        if !apply_launcher_pr_result {
-                                            ui.label("Failed");
-                                            egui::Window::new("Window").show(ctx, |ui| {
-                                                ui.label("Incorrect game path");
-                                            });
-                                            *value = 1;
+                                        match apply_launcher_pr_result {
+                                            Ok(_) => println!("All good?"),
+                                            Err(err) => {
+                                                println!("{}", err);
+                                                ui.label("Failed");
+                                                egui::Window::new("Window").show(ctx, |ui| {
+                                                    ui.label(format!("Error: {}", err));
+                                                });
+                                                *value = 1;
+                                            }
                                         }
                                     } else {
                                         let apply_mods_pr_result = apply_mods_pr(

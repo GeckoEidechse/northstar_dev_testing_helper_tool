@@ -311,7 +311,7 @@ pub fn apply_launcher_pr(
     pr_number: i64,
     game_install_path: &str,
     json_response: serde_json::Value,
-) -> bool {
+) -> Result<(), anyhow::Error> {
     println!("{}", pr_number);
     println!("{}", game_install_path);
     let is_correct_game_path =
@@ -320,8 +320,7 @@ pub fn apply_launcher_pr(
 
     // Exit early if wrong game path
     if !is_correct_game_path {
-        println!("Incorrect path");
-        return false; // Return false to signal error, should use enum or option in the future
+        return Err(anyhow!("Incorrect path \"{}\"", game_install_path)); // Return error cause wrong game path
     }
 
     // get download link
@@ -351,7 +350,7 @@ pub fn apply_launcher_pr(
 
     println!("All done :D");
 
-    true
+    Ok(())
 }
 
 pub fn apply_mods_pr(
