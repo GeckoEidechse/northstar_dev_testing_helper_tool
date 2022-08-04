@@ -179,12 +179,16 @@ impl eframe::App for TemplateApp {
                                             game_install_path,
                                             json_response.clone(),
                                         );
-                                        if !apply_mods_pr_result {
-                                            ui.label("Failed");
-                                            egui::Window::new("Window").show(ctx, |ui| {
-                                                ui.label("Incorrect game path");
-                                            });
-                                            *value = 1;
+                                        match apply_mods_pr_result {
+                                            Ok(_) => println!("All good?"),
+                                            Err(err) => {
+                                                println!("{}", err);
+                                                ui.label("Failed");
+                                                egui::Window::new("Window").show(ctx, |ui| {
+                                                    ui.label(format!("Error: {}", err));
+                                                });
+                                                *value = 1;
+                                            }
                                         }
 
                                         // egui::containers::popup::popup_below_widget(
