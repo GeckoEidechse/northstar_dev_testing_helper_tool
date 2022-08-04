@@ -143,7 +143,10 @@ pub fn check_github_api(url: &str) -> Result<serde_json::Value, Box<dyn Error>> 
     Ok(json)
 }
 
-fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
+fn get_mods_download_link(
+    pr_number: i64,
+    json_response: serde_json::Value,
+) -> Result<String, anyhow::Error> {
     for elem in json_response.as_array().unwrap() {
         for val in elem.as_object().unwrap() {
             let (key, v) = val;
@@ -175,17 +178,23 @@ fn get_mods_download_link(pr_number: i64, json_response: serde_json::Value) -> S
                             "https://github.com/{}/archive/refs/heads/{}.zip",
                             json_key_fullname, json_key_ref
                         );
-                        return download_url;
+                        return Ok(download_url);
                         // break;
                     }
                 }
             }
         }
     }
-    todo!();
+    return Err(anyhow!(
+        "Couldn't grab download link for PR \"{}\"",
+        pr_number
+    ));
 }
 
-fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) -> String {
+fn get_launcher_download_link(
+    pr_number: i64,
+    json_response: serde_json::Value,
+) -> Result<String, anyhow::Error> {
     // Crossreference with runs API
     let runs_json_response =
         check_github_api("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs")
@@ -238,7 +247,7 @@ fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) 
                                 dbg!(json_key_sha);
                                 dbg!(json_key_merge_commit_sha);
 
-                                return format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]);
+                                return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]));
                             }
                         }
                     }
@@ -246,7 +255,10 @@ fn get_launcher_download_link(pr_number: i64, json_response: serde_json::Value) 
             }
         }
     }
-    todo!();
+    return Err(anyhow!(
+        "Couldn't grab download link for PR \"{}\"",
+        pr_number
+    ));
 }
 
 fn download_zip(download_url: String, location: String) -> Result<(), anyhow::Error> {
@@ -337,7 +349,7 @@ pub fn apply_launcher_pr(
     check_game_path(game_install_path)?;
 
     // get download link
-    let download_url = get_launcher_download_link(pr_number, json_response);
+    let download_url = get_launcher_download_link(pr_number, json_response)?;
 
     println!("{}", download_url);
 
@@ -377,7 +389,7 @@ pub fn apply_mods_pr(
     // Exit early if wrong game path
     check_game_path(game_install_path)?;
 
-    let download_url = get_mods_download_link(pr_number, json_response);
+    let download_url = get_mods_download_link(pr_number, json_response)?;
 
     println!("{}", download_url);
 
