@@ -103,7 +103,7 @@ impl eframe::App for TemplateApp {
             ui.label(""); // simple spacer
 
             if ui
-                .button("Refresh NorthstarLauncher PRs\n(install is WIP)")
+                .button("Refresh NorthstarLauncher PRs")
                 .clicked()
             {
                 *json_response = util::check_github_api(
