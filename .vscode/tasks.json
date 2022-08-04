@@ -17,6 +17,16 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "check files",
+            "type": "shell",
+            "command": "${workspaceFolder}/check.sh",
+            "args": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }
