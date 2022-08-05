@@ -102,10 +102,7 @@ impl eframe::App for TemplateApp {
 
             ui.label(""); // simple spacer
 
-            if ui
-                .button("Refresh NorthstarLauncher PRs")
-                .clicked()
-            {
+            if ui.button("Refresh NorthstarLauncher PRs").clicked() {
                 *json_response = util::check_github_api(
                     "https://api.github.com/repos/R2Northstar/NorthstarLauncher/pulls",
                 )
