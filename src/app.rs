@@ -132,75 +132,68 @@ impl eframe::App for TemplateApp {
                 "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
             );
             egui::warn_if_debug_build(ui);
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                match json_response.as_array() {
-                    None => {
-                        ui.label("No data, use refresh button on sidebar");
-                    }
-                    Some(json_response_array) => {
-                        for elem in json_response_array {
-                            let mut pr_number = 0;
-                            let mut pr_title = "";
-                            let mut pr_url = "";
-                            for val in elem.as_object().unwrap() {
-                                let (key, v) = val;
+            egui::ScrollArea::vertical().show(ui, |ui| match json_response.as_array() {
+                None => {
+                    ui.label("No data, use refresh button on sidebar");
+                }
+                Some(json_response_array) => {
+                    for elem in json_response_array {
+                        let mut pr_number = 0;
+                        let mut pr_title = "";
+                        let mut pr_url = "";
+                        for val in elem.as_object().unwrap() {
+                            let (key, v) = val;
 
-                                if key == "number" {
-                                    pr_number = v.as_i64().unwrap();
-                                }
-                                if key == "title" {
-                                    pr_title = v.as_str().unwrap();
-                                }
-                                if key == "url" {
-                                    pr_url = v.as_str().unwrap();
-                                }
+                            if key == "number" {
+                                pr_number = v.as_i64().unwrap();
                             }
-                            ui.horizontal(|ui| {
-                                if ui.button("Apply PR").clicked() {
-                                    if pr_url.contains("NorthstarLauncher") {
-                                        let apply_launcher_pr_result = apply_launcher_pr(
-                                            pr_number,
-                                            game_install_path,
-                                            json_response.clone(),
-                                        );
-                                        match apply_launcher_pr_result {
-                                            Ok(_) => println!("All good?"),
-                                            Err(err) => {
-                                                println!("{}", err);
-                                                ui.label("Failed");
-                                                egui::Window::new("Error").show(ctx, |ui| {
-                                                    ui.label(format!("Error: {}", err));
-                                                });
-                                                *value = 1;
-                                            }
+                            if key == "title" {
+                                pr_title = v.as_str().unwrap();
+                            }
+                            if key == "url" {
+                                pr_url = v.as_str().unwrap();
+                            }
+                        }
+                        ui.horizontal(|ui| {
+                            if ui.button("Apply PR").clicked() {
+                                if pr_url.contains("NorthstarLauncher") {
+                                    let apply_launcher_pr_result = apply_launcher_pr(
+                                        pr_number,
+                                        game_install_path,
+                                        json_response.clone(),
+                                    );
+                                    match apply_launcher_pr_result {
+                                        Ok(_) => println!("All good?"),
+                                        Err(err) => {
+                                            println!("{}", err);
+                                            ui.label("Failed");
+                                            egui::Window::new("Error").show(ctx, |ui| {
+                                                ui.label(format!("Error: {}", err));
+                                            });
+                                            *value = 1;
                                         }
-                                    } else {
-                                        let apply_mods_pr_result = apply_mods_pr(
-                                            pr_number,
-                                            game_install_path,
-                                            json_response.clone(),
-                                        );
-                                        match apply_mods_pr_result {
-                                            Ok(_) => println!("All good?"),
-                                            Err(err) => {
-                                                println!("{}", err);
-                                                ui.label("Failed");
-                                                egui::Window::new("Error").show(ctx, |ui| {
-                                                    ui.label(format!("Error: {}", err));
-                                                });
-                                                *value = 1;
-                                            }
+                                    }
+                                } else {
+                                    let apply_mods_pr_result = apply_mods_pr(
+                                        pr_number,
+                                        game_install_path,
+                                        json_response.clone(),
+                                    );
+                                    match apply_mods_pr_result {
+                                        Ok(_) => println!("All good?"),
+                                        Err(err) => {
+                                            println!("{}", err);
+                                            ui.label("Failed");
+                                            egui::Window::new("Error").show(ctx, |ui| {
+                                                ui.label(format!("Error: {}", err));
+                                            });
+                                            *value = 1;
                                         }
-
-                                        // egui::containers::popup::popup_below_widget(
-                                        //     ui,
-                                        //     123,
-                                        // )
                                     }
                                 }
-                                ui.label(format!("{}: {}", pr_number, pr_title));
-                            });
-                        }
+                            }
+                            ui.label(format!("{}: {}", pr_number, pr_title));
+                        });
                     }
                 }
             });
