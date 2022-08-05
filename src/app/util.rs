@@ -195,56 +195,43 @@ fn get_launcher_download_link(
 
     // Get top commit SHA
     for elem in json_response.as_array().unwrap() {
-        for val in elem.as_object().unwrap() {
-            let (key, v) = val;
+        // Early return if PR number is not the right one
+        if elem.get("number").and_then(|value| value.as_i64()).unwrap() != pr_number {
+            continue;
+        }
 
-            if key == "number" && v.as_i64().unwrap() == pr_number {
-                let mut json_key_merge_commit_sha = "";
-                let mut json_key_head_sha = "";
-                let mut json_key_id = 0;
-                let mut json_key_sha = "";
-                for val in elem.as_object().unwrap() {
-                    let (key, v) = val;
+        // Get merge commit sha as short version is part of filename
+        let json_key_merge_commit_sha = elem
+            .get("merge_commit_sha")
+            .and_then(|value| value.as_str())
+            .unwrap();
 
-                    if key == "merge_commit_sha" {
-                        json_key_merge_commit_sha = v.as_str().unwrap();
-                    }
+        // Get head commit sha of PR
+        let json_key_sha = elem
+            .get("head")
+            .and_then(|value| value.get("sha"))
+            .and_then(|value| value.as_str())
+            .unwrap();
 
-                    if key == "head" {
-                        for val in v.as_object().unwrap() {
-                            let (key, v) = val;
+        // Cross-reference PR head commit sha against workflow runs
+        let v = runs_json_response.get("workflow_runs").unwrap();
+        for elem in v.as_array().unwrap() {
+            // Get commit show on which run was performed
+            let json_key_head_sha = elem
+                .get("head_sha")
+                .and_then(|value| value.as_str())
+                .unwrap();
 
-                            if key == "sha" {
-                                println!("{}", v);
-                                json_key_sha = v.as_str().unwrap();
-                            }
-                        }
-                    }
-                }
-                for val in runs_json_response.as_object().unwrap() {
-                    let (key, v) = val;
-                    if key == "workflow_runs" {
-                        for elem in v.as_array().unwrap() {
-                            for val in elem.as_object().unwrap() {
-                                let (key, v) = val;
-                                if key == "head_sha" {
-                                    json_key_head_sha = v.as_str().unwrap();
-                                }
-                                if key == "id" {
-                                    json_key_id = v.as_i64().unwrap();
-                                }
-                            }
-                            // Get run ID
-                            if json_key_head_sha == json_key_sha {
-                                dbg!(json_key_id);
-                                dbg!(json_key_sha);
-                                dbg!(json_key_merge_commit_sha);
+            // Get run ID
+            let json_key_id = elem.get("id").and_then(|value| value.as_i64()).unwrap();
 
-                                return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]));
-                            }
-                        }
-                    }
-                }
+            // If head commit sha of run and PR match, grab CI output
+            if json_key_head_sha == json_key_sha {
+                dbg!(json_key_id);
+                dbg!(json_key_sha);
+                dbg!(json_key_merge_commit_sha);
+
+                return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]));
             }
         }
     }
