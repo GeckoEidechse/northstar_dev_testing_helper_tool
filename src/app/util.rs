@@ -147,43 +147,36 @@ fn get_mods_download_link(
     pr_number: i64,
     json_response: serde_json::Value,
 ) -> Result<String, anyhow::Error> {
+    // {pr object} -> number == pr_number
+    //             -> head -> ref
+    //                     -> repo -> full_name
     for elem in json_response.as_array().unwrap() {
-        for val in elem.as_object().unwrap() {
-            let (key, v) = val;
-
-            if key == "number" && v.as_i64().unwrap() == pr_number {
-                for val in elem.as_object().unwrap() {
-                    let (key, v) = val;
-                    if key == "head" {
-                        let mut json_key_ref = "";
-                        let mut json_key_fullname = "";
-                        for val in v.as_object().unwrap() {
-                            let (key, v) = val;
-
-                            if key == "ref" {
-                                // println!("{}", v);
-                                json_key_ref = v.as_str().unwrap();
-                            }
-                            if key == "repo" {
-                                for val in v.as_object().unwrap() {
-                                    let (key, v) = val;
-                                    if key == "full_name" {
-                                        json_key_fullname = v.as_str().unwrap();
-                                    }
-                                }
-                            }
-                            // println!("{} {}", json_key_ref, json_key_fullname);
-                        }
-                        let download_url = format!(
-                            "https://github.com/{}/archive/refs/heads/{}.zip",
-                            json_key_fullname, json_key_ref
-                        );
-                        return Ok(download_url);
-                        // break;
-                    }
-                }
-            }
+        // Early return if PR number is not the right one
+        if elem.get("number").and_then(|value| value.as_i64()).unwrap() != pr_number {
+            continue;
         }
+
+        // Get branch name
+        let json_key_ref = elem
+            .get("head")
+            .and_then(|value| value.get("ref"))
+            .and_then(|value| value.as_str())
+            .unwrap();
+
+        // Get repo name
+        let json_key_fullname = elem
+            .get("head")
+            .and_then(|value| value.get("repo"))
+            .and_then(|value| value.get("full_name"))
+            .and_then(|value| value.as_str())
+            .unwrap();
+
+        // Use repo and branch name to get download link
+        let download_url = format!(
+            "https://github.com/{}/archive/refs/heads/{}.zip",
+            json_key_fullname, json_key_ref
+        );
+        return Ok(download_url);
     }
     return Err(anyhow!(
         "Couldn't grab download link for PR \"{}\"",
