@@ -231,7 +231,31 @@ fn get_launcher_download_link(
                 dbg!(json_key_sha);
                 dbg!(json_key_merge_commit_sha);
 
-                return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/runs/{}/NorthstarLauncher-{}.zip", json_key_id, &json_key_merge_commit_sha[..7]));
+                // Check artifacts
+                println!("Checking: https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
+                let artifacts_json_response = check_github_api(&format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id))
+                    .expect("Failed request");
+
+                // Iterate over artifacts
+                for elem in artifacts_json_response
+                    .get("artifacts")
+                    .and_then(|value| value.as_array())
+                    .unwrap()
+                {
+                    // Make sure run is from PR head commit
+                    let current_run_json_key_sha = elem
+                        .get("workflow_run")
+                        .and_then(|value| value.get("head_sha"))
+                        .and_then(|value| value.as_str())
+                        .unwrap();
+                    if current_run_json_key_sha == json_key_head_sha {
+                        let artifact_id_json_key_sha =
+                            elem.get("id").and_then(|value| value.as_i64()).unwrap();
+
+                        // Download artifact
+                        return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/artifacts/{}.zip", artifact_id_json_key_sha));
+                    }
+                }
             }
         }
     }
