@@ -156,39 +156,22 @@ impl eframe::App for TemplateApp {
                         }
                         ui.horizontal(|ui| {
                             if ui.button("Apply PR").clicked() {
-                                if pr_url.contains("NorthstarLauncher") {
-                                    let apply_launcher_pr_result = apply_launcher_pr(
-                                        pr_number,
-                                        game_install_path,
-                                        json_response.clone(),
-                                    );
-                                    match apply_launcher_pr_result {
-                                        Ok(_) => println!("All good?"),
-                                        Err(err) => {
-                                            println!("{}", err);
-                                            ui.label("Failed");
-                                            egui::Window::new("Error").show(ctx, |ui| {
-                                                ui.label(format!("Error: {}", err));
-                                            });
-                                            *value = 1;
-                                        }
-                                    }
+                                let apply_pr = if pr_url.contains("NorthstarLauncher") {
+                                    apply_launcher_pr
                                 } else {
-                                    let apply_mods_pr_result = apply_mods_pr(
-                                        pr_number,
-                                        game_install_path,
-                                        json_response.clone(),
-                                    );
-                                    match apply_mods_pr_result {
-                                        Ok(_) => println!("All good?"),
-                                        Err(err) => {
-                                            println!("{}", err);
-                                            ui.label("Failed");
-                                            egui::Window::new("Error").show(ctx, |ui| {
-                                                ui.label(format!("Error: {}", err));
-                                            });
-                                            *value = 1;
-                                        }
+                                    apply_mods_pr
+                                };
+                                let apply_pr_result =
+                                    apply_pr(pr_number, game_install_path, json_response.clone());
+                                match apply_pr_result {
+                                    Ok(_) => println!("All good?"),
+                                    Err(err) => {
+                                        println!("{}", err);
+                                        ui.label("Failed");
+                                        egui::Window::new("Error").show(ctx, |ui| {
+                                            ui.label(format!("Error: {}", err));
+                                        });
+                                        *value = 1;
                                     }
                                 }
                             }
