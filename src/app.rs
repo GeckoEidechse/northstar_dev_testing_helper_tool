@@ -167,15 +167,18 @@ impl eframe::App for TemplateApp {
                                     Ok(_) => println!("All good?"),
                                     Err(err) => {
                                         println!("{}", err);
-                                        ui.label("Failed");
-                                        egui::Window::new("Error").show(ctx, |ui| {
-                                            ui.label(format!("Error: {}", err));
+                                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                                            ui.label(
+                                                egui::RichText::new(format!("Error: {}", err))
+                                                    .color(egui::Color32::RED),
+                                            );
                                         });
                                         *value = 1;
                                     }
                                 }
+                            } else {
+                                ui.label(format!("{}: {}", pr_number, pr_title));
                             }
-                            ui.label(format!("{}: {}", pr_number, pr_title));
                         });
                     }
                 }
