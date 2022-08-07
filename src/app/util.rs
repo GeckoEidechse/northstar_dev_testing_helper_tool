@@ -189,9 +189,12 @@ fn get_launcher_download_link(
     json_response: serde_json::Value,
 ) -> Result<String, anyhow::Error> {
     // Crossreference with runs API
-    let runs_json_response =
-        check_github_api("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs")
-            .expect("Failed request");
+    let runs_json_response = match check_github_api(
+        "https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs",
+    ) {
+        Ok(result) => result,
+        Err(err) => return Err(anyhow!(format!("{}", err))),
+    };
 
     // Get top commit SHA
     for elem in json_response.as_array().unwrap() {
