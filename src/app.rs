@@ -214,7 +214,33 @@ impl eframe::App for TemplateApp {
                                     }
                                 }
                             } else {
-                                ui.label(format!("{}: {}", pr_number, pr_title));
+                                // This is a quick and dirty way to colour PR that don't have a testing labels as lighter colour to indicate no need for testing.
+                                // In the future this should be rewritten more nicely and maybe allow filtering by label
+                                // Also the hardcoded value should be a constant at the top of the source file.
+                                let labels = elem
+                                    .get("labels")
+                                    .and_then(|value| value.as_array())
+                                    .unwrap();
+                                let mut temp_bool = false;
+                                for elem in labels {
+                                    let label_name =
+                                        elem.get("name").and_then(|value| value.as_str()).unwrap();
+                                    if label_name == "needs testing" {
+                                        temp_bool = true;
+                                    }
+                                    // dbg!(label_name);
+                                }
+                                if temp_bool {
+                                    ui.label(
+                                        egui::RichText::new(format!("{}: {}", pr_number, pr_title))
+                                            .strong(),
+                                    );
+                                } else {
+                                    ui.label(
+                                        egui::RichText::new(format!("{}: {}", pr_number, pr_title))
+                                            .color(egui::Color32::GRAY),
+                                    );
+                                }
                             }
                         });
                     }
