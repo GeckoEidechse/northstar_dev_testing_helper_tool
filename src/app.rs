@@ -149,22 +149,11 @@ impl eframe::App for TemplateApp {
                 }
                 Some(json_response_array) => {
                     for elem in json_response_array {
-                        let mut pr_number = 0;
-                        let mut pr_title = "";
-                        let mut pr_url = "";
-                        for val in elem.as_object().unwrap() {
-                            let (key, v) = val;
+                        let pr_number =
+                            elem.get("number").and_then(|value| value.as_i64()).unwrap();
+                        let pr_title = elem.get("title").and_then(|value| value.as_str()).unwrap();
+                        let pr_url = elem.get("url").and_then(|value| value.as_str()).unwrap();
 
-                            if key == "number" {
-                                pr_number = v.as_i64().unwrap();
-                            }
-                            if key == "title" {
-                                pr_title = v.as_str().unwrap();
-                            }
-                            if key == "url" {
-                                pr_url = v.as_str().unwrap();
-                            }
-                        }
                         // Skip if not in filter
                         if !format!("{}: {}", pr_number, pr_title)
                             .to_lowercase()
