@@ -100,19 +100,49 @@ impl eframe::App for TemplateApp {
             ui.label(""); // simple spacer
 
             if ui.button("Refresh NorthstarMods PRs").clicked() {
-                *json_response = util::check_github_api(
+                match util::check_github_api(
                     "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls",
-                )
-                .expect("Failed request");
+                ) {
+                    Ok(result) => {
+                        println!("Successful fetch");
+                        *json_response = result;
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                            ui.label(
+                                egui::RichText::new(format!("Error: {}", err))
+                                    .color(egui::Color32::RED),
+                            );
+                        });
+
+                        *value = 1;
+                    }
+                }
             }
 
             ui.label(""); // simple spacer
 
             if ui.button("Refresh NorthstarLauncher PRs").clicked() {
-                *json_response = util::check_github_api(
+                match util::check_github_api(
                     "https://api.github.com/repos/R2Northstar/NorthstarLauncher/pulls",
-                )
-                .expect("Failed request");
+                ) {
+                    Ok(result) => {
+                        println!("Successful fetch");
+                        *json_response = result;
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                            ui.label(
+                                egui::RichText::new(format!("Error: {}", err))
+                                    .color(egui::Color32::RED),
+                            );
+                        });
+
+                        *value = 1;
+                    }
+                }
             }
 
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
