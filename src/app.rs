@@ -12,6 +12,10 @@ pub struct TemplateApp {
     // Example stuff:
     label: String,
 
+    // Filter
+    #[serde(skip)]
+    filter_content: String,
+
     // this how you opt-out of serialization of a member
     #[serde(skip)]
     value: i32,
@@ -25,6 +29,7 @@ impl Default for TemplateApp {
         Self {
             // Example stuff:
             label: "/path/to/titanfall2".to_owned(),
+            filter_content: "".to_owned(),
             value: 0,
             json_response: serde_json::Value::Null,
         }
@@ -58,6 +63,7 @@ impl eframe::App for TemplateApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let Self {
             label: game_install_path,
+            filter_content: filter_content_string,
             value,
             json_response,
         } = self;
@@ -132,6 +138,11 @@ impl eframe::App for TemplateApp {
                 "https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool",
             );
             egui::warn_if_debug_build(ui);
+
+            // Filter field
+            ui.label("Filter:");
+            ui.text_edit_singleline(filter_content_string);
+
             egui::ScrollArea::vertical().show(ui, |ui| match json_response.as_array() {
                 None => {
                     ui.label("No data, use refresh button on sidebar");
@@ -153,6 +164,13 @@ impl eframe::App for TemplateApp {
                             if key == "url" {
                                 pr_url = v.as_str().unwrap();
                             }
+                        }
+                        // Skip if not in filter
+                        if !format!("{}: {}", pr_number, pr_title)
+                            .to_lowercase()
+                            .contains(&filter_content_string.to_string().to_lowercase())
+                        {
+                            continue;
                         }
                         ui.horizontal(|ui| {
                             if ui.button("Apply PR").clicked() {
