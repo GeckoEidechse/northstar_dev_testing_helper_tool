@@ -272,11 +272,14 @@ fn download_zip(download_url: String, location: String) -> Result<(), anyhow::Er
     println!("Downloading file");
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
     let client = reqwest::blocking::Client::new();
-    let mut resp = client
+    let mut resp = match client
         .get(download_url)
         .header(USER_AGENT, user_agent)
         .send()
-        .unwrap();
+    {
+        Ok(result) => result,
+        Err(err) => return Err(anyhow!(format!("{}", err))),
+    };
 
     // Error out earlier if non-successful response
     if !resp.status().is_success() {
