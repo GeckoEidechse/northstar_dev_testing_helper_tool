@@ -1,6 +1,6 @@
 use core::time;
 
-use self::util::{apply_launcher_pr, apply_mods_pr};
+use self::util::{apply_launcher_pr, apply_mods_pr, find_game_install_path};
 use self_update::cargo_crate_version;
 
 mod util;
@@ -96,6 +96,25 @@ impl eframe::App for TemplateApp {
 
             ui.label("Titanfall2 install location:");
             ui.text_edit_singleline(game_install_path);
+            if ui.button("Try detect install path").clicked() {
+                match find_game_install_path() {
+                    Ok(found_install_path) => {
+                        println!("Found install at {}", found_install_path);
+                        *game_install_path = found_install_path;
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                            ui.label(
+                                egui::RichText::new(format!("Error: {}", err))
+                                    .color(egui::Color32::RED),
+                            );
+                        });
+
+                        *value = 1;
+                    }
+                }
+            }
 
             ui.label(""); // simple spacer
 

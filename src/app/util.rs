@@ -347,6 +347,28 @@ fn check_game_path(game_install_path: &str) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Tries to find the game install location. In its current form it only checks a few hardcoded locations
+pub fn find_game_install_path() -> Result<String, anyhow::Error> {
+    // List of predefined install locations
+    // Parsing VDF for Steam and Windows registry for Origin would be nicer
+    // but requires a lot more investigation on how to do that exactly.
+    let potential_locations = [
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Titanfall2", // Default Steam
+        "C:\\Program Files (x86)\\Origin Games\\Titanfall2",             // Default Origin
+        "C:\\Program Files\\EA Games\\Titanfall2",                       // Default EA Play
+    ];
+
+    for location in potential_locations {
+        // Check if valid folder and valid Titanfall2 install path
+        if std::path::Path::new(location).exists() && check_game_path(location).is_ok() {
+            return Ok(location.to_string());
+        }
+    }
+    return Err(anyhow!(
+        "Could not auto-detect game install location! Please enter it manually."
+    ));
+}
+
 pub fn apply_launcher_pr(
     pr_number: i64,
     game_install_path: &str,
