@@ -1,7 +1,7 @@
 [package]
 name = "northstar_dev_testing_helper_tool"
 default-run = "northstar_dev_testing_helper_tool_bin"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["GeckoEidechse <gecko.eidechse+git@pm.me>"]
 edition = "2021"
 rust-version = "1.62"
