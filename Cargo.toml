@@ -4,7 +4,7 @@ default-run = "northstar_dev_testing_helper_tool_bin"
 version = "0.5.0"
 authors = ["GeckoEidechse <gecko.eidechse+git@pm.me>"]
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.62"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
