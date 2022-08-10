@@ -398,7 +398,12 @@ pub fn apply_launcher_pr(
     fs::remove_file("ns-dev-test-helper-temp-pr-files.zip").unwrap();
 
     // Copy downloaded folder to game install folder
-    copy_dir_all(zip_extract_folder_name.clone(), game_install_path).unwrap();
+    match copy_dir_all(zip_extract_folder_name.clone(), game_install_path) {
+        Ok(_) => (),
+        Err(err) => {
+            return Err(anyhow!("Failed copying files: {}", err));
+        }
+    }
 
     println!("Deleting old unzipped folder");
 
