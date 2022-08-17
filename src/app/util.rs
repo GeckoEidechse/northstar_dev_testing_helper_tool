@@ -178,10 +178,10 @@ fn get_mods_download_link(
         );
         return Ok(download_url);
     }
-    return Err(anyhow!(
+    Err(anyhow!(
         "Couldn't grab download link for PR \"{}\"",
         pr_number
-    ));
+    ))
 }
 
 fn get_launcher_download_link(
@@ -262,10 +262,10 @@ fn get_launcher_download_link(
             }
         }
     }
-    return Err(anyhow!(
+    Err(anyhow!(
         "Couldn't grab download link for PR \"{}\"",
         pr_number
-    ));
+    ))
 }
 
 fn download_zip(download_url: String, location: String) -> Result<(), anyhow::Error> {
@@ -364,9 +364,9 @@ pub fn find_game_install_path() -> Result<String, anyhow::Error> {
             return Ok(location.to_string());
         }
     }
-    return Err(anyhow!(
+    Err(anyhow!(
         "Could not auto-detect game install location! Please enter it manually."
-    ));
+    ))
 }
 
 pub fn apply_launcher_pr(
