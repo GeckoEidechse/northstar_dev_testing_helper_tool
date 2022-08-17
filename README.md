@@ -12,3 +12,15 @@ Allows for 1-click download of a PR to Titanfall2 install folder as a separate p
 > If you just want a tool to auto-install and update Northstar, use [Viper](https://github.com/0neGal/viper) instead.
 
 ![applicaction main window screenshot](assets/application-mainwindow.png)
+
+## Usage
+
+Simply download the latest release for your platform (Windows or Linux) from [the releases page](https://github.com/GeckoEidechse/northstar_dev_testing_helper_tool/releases), unzip it, and run.
+
+Set your Titanfall2 install path (should be saved between restarts), get the list of current pull requests for NorthstarLauncher or NorthstarMods, and then click "Apply PR" on the appropriate PR.
+
+## Building and development
+
+Like any Rust project use [cargo](https://doc.rust-lang.org/cargo/) to build and run the code, e.g. `cargo run`.
+
+If you want to fork the code for your own project, note that it uses the [`self_update` crate](https://crates.io/crates/self_update) for updates. The source for updates is hardcoded to this repository and would need to be changed to your own in `main.rs`.
