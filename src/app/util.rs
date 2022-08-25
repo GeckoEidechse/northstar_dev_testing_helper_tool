@@ -353,9 +353,9 @@ pub fn find_game_install_path() -> Result<String, anyhow::Error> {
     // Parsing VDF for Steam and Windows registry for Origin would be nicer
     // but requires a lot more investigation on how to do that exactly.
     let potential_locations = [
-        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Titanfall2", // Default Steam
-        "C:\\Program Files (x86)\\Origin Games\\Titanfall2",             // Default Origin
-        "C:\\Program Files\\EA Games\\Titanfall2",                       // Default EA Play
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Titanfall2", // Default Windows Steam
+        "C:\\Program Files (x86)\\Origin Games\\Titanfall2",             // Default Windows Origin
+        "C:\\Program Files\\EA Games\\Titanfall2",                       // Default Windows EA Play
     ];
 
     for location in potential_locations {
