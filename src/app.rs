@@ -212,6 +212,8 @@ impl eframe::App for TemplateApp {
                         }
                         ui.horizontal(|ui| {
                             if ui.button("Apply PR").clicked() {
+                                println!("Attempting to install \"{}\"", pr_title);
+                                println!("from: {}", pr_url);
                                 let apply_pr = if pr_url.contains("NorthstarLauncher") {
                                     apply_launcher_pr
                                 } else {
