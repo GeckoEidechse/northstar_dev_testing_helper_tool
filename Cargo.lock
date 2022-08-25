@@ -1410,7 +1410,7 @@ dependencies = [
 
 [[package]]
 name = "northstar_dev_testing_helper_tool"
-version = "0.5.1"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "eframe",
