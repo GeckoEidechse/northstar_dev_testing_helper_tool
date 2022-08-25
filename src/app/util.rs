@@ -349,8 +349,23 @@ fn check_game_path(game_install_path: &str) -> Result<(), anyhow::Error> {
 
 /// Tries to find the game install location. In its current form it only checks a few hardcoded locations
 pub fn find_game_install_path() -> Result<String, anyhow::Error> {
-    // List of predefined install locations
-    // Parsing VDF for Steam and Windows registry for Origin would be nicer
+    // Attempt parsing Steam library directly
+    match steamlocate::SteamDir::locate() {
+        Some(mut steamdir) => {
+            println!("{:#?}", steamdir);
+            match steamdir.app(&1237970) {
+                Some(app) => {
+                    println!("{:#?}", app);
+                    return Ok(app.path.to_str().unwrap().to_string());
+                }
+                None => println!("Couldn't locate Titanfall2"),
+            }
+        }
+        None => println!("Couldn't locate Steam on this computer!"),
+    }
+
+    // If parsing Steam library failed, use list of predefined install locations
+    // Parsing Windows registry for Origin would be nicer
     // but requires a lot more investigation on how to do that exactly.
     let potential_locations = [
         "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Titanfall2", // Default Windows Steam
