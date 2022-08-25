@@ -88,6 +88,8 @@ impl eframe::App for TemplateApp {
                         frame.close();
                     }
                 });
+                ui.label("| ");
+                egui::widgets::global_dark_light_mode_buttons(ui);
             });
         });
 
