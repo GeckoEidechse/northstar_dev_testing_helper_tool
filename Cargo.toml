@@ -28,9 +28,7 @@ tracing-subscriber = "0.3"
 anyhow = "1.0"
 
 # Find steam games
-# steamlocate = "1.0.1"
-# Using git version directly as Flatpak install detection was not merged at the time of commit
-steamlocate = { git = "https://github.com/WilliamVenner/steamlocate-rs.git", rev = "fdf5ec20811c57420a1b728f9ee51e6d50cdb73d" }
+steamlocate = "1.0.2"
 
 
 [profile.release]

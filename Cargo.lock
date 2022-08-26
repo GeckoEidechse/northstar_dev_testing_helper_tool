@@ -2254,8 +2254,9 @@ dependencies = [
 
 [[package]]
 name = "steamlocate"
-version = "1.0.1"
-source = "git+https://github.com/WilliamVenner/steamlocate-rs.git?rev=fdf5ec20811c57420a1b728f9ee51e6d50cdb73d#fdf5ec20811c57420a1b728f9ee51e6d50cdb73d"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aab3ae49ddfb0afb481b118c00b9cfa20e9a6dc6d9f5264e510a77efda59d818"
 dependencies = [
  "dirs",
  "keyvalues-parser",
