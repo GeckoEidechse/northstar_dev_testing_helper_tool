@@ -371,6 +371,7 @@ pub fn find_game_install_path() -> Result<String, anyhow::Error> {
         "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Titanfall2", // Default Windows Steam
         "C:\\Program Files (x86)\\Origin Games\\Titanfall2",             // Default Windows Origin
         "C:\\Program Files\\EA Games\\Titanfall2",                       // Default Windows EA Play
+        "/home/deck/.local/share/Steam/steamapps/common/Titanfall2",     // Default Linux SteamDeck
     ];
 
     for location in potential_locations {
