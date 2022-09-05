@@ -22,6 +22,9 @@ pub struct TemplateApp {
 
     #[serde(skip)]
     json_response: serde_json::Value,
+
+    #[serde(skip)]
+    scale_factor: f32,
 }
 
 impl Default for TemplateApp {
@@ -32,6 +35,7 @@ impl Default for TemplateApp {
             filter_content: "".to_owned(),
             error_indicator: 0,
             json_response: serde_json::Value::Null,
+            scale_factor: -1.0,
         }
     }
 }
@@ -66,6 +70,7 @@ impl eframe::App for TemplateApp {
             filter_content: filter_content_string,
             error_indicator: error_indicator_value,
             json_response,
+            scale_factor,
         } = self;
 
         if *error_indicator_value != 0 {
@@ -81,6 +86,11 @@ impl eframe::App for TemplateApp {
         // For inspiration and more examples, go to https://emilk.github.io/egui
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.add(egui::Slider::new(scale_factor, 0.5..=5.0).text("Scaling factor"));
+            // Stupide way to use default scale until value was updated
+            if scale_factor > &mut 0.0 {
+                ctx.set_pixels_per_point(*scale_factor);
+            }
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
