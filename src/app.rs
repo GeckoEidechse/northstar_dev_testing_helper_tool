@@ -18,7 +18,7 @@ pub struct TemplateApp {
 
     // this how you opt-out of serialization of a member
     #[serde(skip)]
-    value: i32,
+    error_indicator: i32,
 
     #[serde(skip)]
     json_response: serde_json::Value,
@@ -30,7 +30,7 @@ impl Default for TemplateApp {
             // Example stuff:
             label: "/path/to/titanfall2".to_owned(),
             filter_content: "".to_owned(),
-            value: 0,
+            error_indicator: 0,
             json_response: serde_json::Value::Null,
         }
     }
@@ -64,15 +64,15 @@ impl eframe::App for TemplateApp {
         let Self {
             label: game_install_path,
             filter_content: filter_content_string,
-            value,
+            error_indicator: error_indicator_value,
             json_response,
         } = self;
 
-        if *value != 0 {
+        if *error_indicator_value != 0 {
             // Stupid way to get the error window to show for a bit
             // This should be replaced with a proper implementation later
             std::thread::sleep(time::Duration::from_millis(3000));
-            *value = 0;
+            *error_indicator_value = 0;
         }
 
         // Examples of how to create different panels and windows.
@@ -114,7 +114,7 @@ impl eframe::App for TemplateApp {
                                 );
                             });
 
-                            *value = 1;
+                            *error_indicator_value = 1;
                         }
                     }
                 }
@@ -138,7 +138,7 @@ impl eframe::App for TemplateApp {
                                 );
                             });
 
-                            *value = 1;
+                            *error_indicator_value = 1;
                         }
                     }
                 }
@@ -162,7 +162,7 @@ impl eframe::App for TemplateApp {
                                 );
                             });
 
-                            *value = 1;
+                            *error_indicator_value = 1;
                         }
                     }
                 }
@@ -238,7 +238,7 @@ impl eframe::App for TemplateApp {
                                                     .color(egui::Color32::RED),
                                             );
                                         });
-                                        *value = 1;
+                                        *error_indicator_value = 1;
                                     }
                                 }
                             } else {
