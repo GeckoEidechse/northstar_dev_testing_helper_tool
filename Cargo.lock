@@ -1530,7 +1530,7 @@ dependencies = [
  "serde_json",
  "steamlocate",
  "tracing-subscriber",
- "users",
+ "whoami",
  "zip",
 ]
 
@@ -2586,16 +2586,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "users"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24cc0f6d6f267b73e5a2cadf007ba8f9bc39c6a6f9666f8cf25ea809a153b032"
-dependencies = [
- "libc",
- "log",
-]
-
-[[package]]
 name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2818,6 +2808,12 @@ dependencies = [
  "widestring",
  "winapi",
 ]
+
+[[package]]
+name = "whoami"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7884773ab69074615cb8f8425d0e53f11710786158704fca70f53e71b0e05504"
 
 [[package]]
 name = "widestring"

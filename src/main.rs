@@ -27,24 +27,12 @@ fn main() {
     }
 
     let mut native_options = eframe::NativeOptions::default();
-    match users::get_current_username() {
-        Some(username) => {
-            println!("Username {:?}", username);
-            match username.to_str() {
-                Some(username) => {
-                    println!("{}", username);
-                    if username == "deck" {
-                        // Run in fullscreen if user is Steam Deck (or just called `deck`)
-                        native_options.maximized = true;
-                    }
-                }
-                None => println!("Couldn't convert OS string"),
-            };
-        }
-        None => {
-            println!("Failed to get current user username");
-        }
-    };
+
+    // Run in fullscreen if user is Steam Deck (or just called `deck`)
+    // in the future, this should check for more Steam Deck specific settings
+    if whoami::username() == "deck" {
+        native_options.maximized = true;
+    }
 
     eframe::run_native(
         "northstar_dev_testing_helper_tool",
