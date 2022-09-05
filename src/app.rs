@@ -96,7 +96,7 @@ impl eframe::App for TemplateApp {
         egui::SidePanel::left("side_panel").show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.heading("Side Panel");
-    
+
                 ui.label("Titanfall2 install location:");
                 ui.text_edit_singleline(game_install_path);
                 if ui.button("Try detect install path").clicked() {
@@ -113,14 +113,14 @@ impl eframe::App for TemplateApp {
                                         .color(egui::Color32::RED),
                                 );
                             });
-    
+
                             *value = 1;
                         }
                     }
                 }
-    
+
                 ui.label(""); // simple spacer
-    
+
                 if ui.button("Refresh NorthstarMods PRs").clicked() {
                     match util::check_github_api(
                         "https://api.github.com/repos/R2Northstar/NorthstarMods/pulls",
@@ -137,14 +137,14 @@ impl eframe::App for TemplateApp {
                                         .color(egui::Color32::RED),
                                 );
                             });
-    
+
                             *value = 1;
                         }
                     }
                 }
-    
+
                 ui.label(""); // simple spacer
-    
+
                 if ui.button("Refresh NorthstarLauncher PRs").clicked() {
                     match util::check_github_api(
                         "https://api.github.com/repos/R2Northstar/NorthstarLauncher/pulls",
@@ -161,19 +161,22 @@ impl eframe::App for TemplateApp {
                                         .color(egui::Color32::RED),
                                 );
                             });
-    
+
                             *value = 1;
                         }
                     }
                 }
-    
+
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 0.0;
                         ui.label("powered by ");
                         ui.hyperlink_to("egui", "https://github.com/emilk/egui");
                         ui.label(" and ");
-                        ui.hyperlink_to("eframe", "https://github.com/emilk/egui/tree/master/eframe");
+                        ui.hyperlink_to(
+                            "eframe",
+                            "https://github.com/emilk/egui/tree/master/eframe",
+                        );
                     });
                 });
             });
