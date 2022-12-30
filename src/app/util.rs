@@ -37,7 +37,7 @@ struct CommitHead {
 #[derive(Debug, Deserialize, Clone)]
 struct PullsApiResponseElement {
     number: i64,
-    merge_commit_sha: String,
+    _merge_commit_sha: String,
     head: CommitHead,
 }
 
@@ -247,10 +247,6 @@ fn get_launcher_download_link(
         for workflow_run in &runs_response.workflow_runs {
             // If head commit sha of run and PR match, grab CI output
             if workflow_run.head_sha == pull_request.head.sha {
-                dbg!(workflow_run.id);
-                // dbg!(json_key_sha);
-                dbg!(pull_request.merge_commit_sha.clone());
-
                 // Check artifacts
                 let api_url = format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", workflow_run.id);
                 println!("Checking: {}", api_url);
