@@ -267,15 +267,11 @@ fn get_launcher_download_link(
                 dbg!(json_key_merge_commit_sha.clone());
 
                 // Check artifacts
-                println!("Checking: https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
-                let artifacts_response: ArtifactsResponse = serde_json::from_value(
-                    check_github_api(
-                        &format!(
-                            "https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts",
-                            json_key_id
-                        )
-                    ).expect("Failed request")
-                ).unwrap();
+                let api_url = format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
+                println!("Checking: {}", api_url);
+                let artifacts_response: ArtifactsResponse =
+                    serde_json::from_value(check_github_api(&api_url).expect("Failed request"))
+                        .unwrap();
 
                 // Iterate over artifacts
                 for elem in artifacts_response.artifacts {
