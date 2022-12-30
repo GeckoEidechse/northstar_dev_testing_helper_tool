@@ -226,13 +226,12 @@ fn get_launcher_download_link(
     json_response: serde_json::Value,
 ) -> Result<String, anyhow::Error> {
     // Crossreference with runs API
-    let runs_json_response = match check_github_api(
+    let runs_response: ActionsRunsResponse = match check_github_api(
         "https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs",
     ) {
-        Ok(result) => result,
+        Ok(result) => serde_json::from_value(result).unwrap(),
         Err(err) => return Err(anyhow!(format!("{}", err))),
     };
-    let runs_response: ActionsRunsResponse = serde_json::from_value(runs_json_response).unwrap();
 
     let pulls_response: Vec<PullsApiResponseElement> =
         serde_json::from_value(json_response).unwrap();
