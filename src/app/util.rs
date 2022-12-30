@@ -14,8 +14,15 @@ use serde::Deserialize;
 // GitHub API response JSON elements as structs
 #[derive(Debug, Deserialize, Clone)]
 struct WorkflowRun {
+    id: u64,
     head_sha: String,
 }
+
+#[derive(Debug, Deserialize, Clone)]
+struct ActionsRunsResponse {
+    workflow_runs: Vec<WorkflowRun>,
+}
+
 #[derive(Debug, Deserialize, Clone)]
 struct Artifact {
     id: u64,
@@ -213,6 +220,7 @@ fn get_launcher_download_link(
         Ok(result) => result,
         Err(err) => return Err(anyhow!(format!("{}", err))),
     };
+    let runs_response: ActionsRunsResponse = serde_json::from_value(runs_json_response).unwrap();
 
     // Get top commit SHA
     for elem in json_response.as_array().unwrap() {
@@ -235,16 +243,12 @@ fn get_launcher_download_link(
             .unwrap();
 
         // Cross-reference PR head commit sha against workflow runs
-        let v = runs_json_response.get("workflow_runs").unwrap();
-        for elem in v.as_array().unwrap() {
+        for elem in &runs_response.workflow_runs {
             // Get commit show on which run was performed
-            let json_key_head_sha = elem
-                .get("head_sha")
-                .and_then(|value| value.as_str())
-                .unwrap();
+            let json_key_head_sha = &elem.head_sha;
 
             // Get run ID
-            let json_key_id = elem.get("id").and_then(|value| value.as_i64()).unwrap();
+            let json_key_id = elem.id;
 
             // If head commit sha of run and PR match, grab CI output
             if json_key_head_sha == json_key_sha {
@@ -267,7 +271,7 @@ fn get_launcher_download_link(
                 for elem in artifacts_response.artifacts {
                     // Make sure run is from PR head commit
                     let current_run_json_key_sha = elem.workflow_run.head_sha;
-                    if current_run_json_key_sha == json_key_head_sha {
+                    if &current_run_json_key_sha == json_key_head_sha {
                         let artifact_id_json_key_sha = elem.id;
 
                         dbg!(artifact_id_json_key_sha);
