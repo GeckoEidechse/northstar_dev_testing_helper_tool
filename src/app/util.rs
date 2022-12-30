@@ -253,37 +253,28 @@ fn get_launcher_download_link(
         let json_key_sha = elem.head.sha;
 
         // Cross-reference PR head commit sha against workflow runs
-        for elem in &runs_response.workflow_runs {
-            // Get commit show on which run was performed
-            let json_key_head_sha = elem.head_sha.clone();
-
-            // Get run ID
-            let json_key_id = elem.id;
-
+        for workflow_run in &runs_response.workflow_runs {
             // If head commit sha of run and PR match, grab CI output
-            if json_key_head_sha == json_key_sha {
-                dbg!(json_key_id);
+            if workflow_run.head_sha == json_key_sha {
+                dbg!(workflow_run.id);
                 // dbg!(json_key_sha);
                 dbg!(json_key_merge_commit_sha.clone());
 
                 // Check artifacts
-                let api_url = format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
+                let api_url = format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", workflow_run.id);
                 println!("Checking: {}", api_url);
                 let artifacts_response: ArtifactsResponse =
                     serde_json::from_value(check_github_api(&api_url).expect("Failed request"))
                         .unwrap();
 
                 // Iterate over artifacts
-                for elem in artifacts_response.artifacts {
+                for artifact in artifacts_response.artifacts {
                     // Make sure run is from PR head commit
-                    let current_run_json_key_sha = elem.workflow_run.head_sha;
-                    if current_run_json_key_sha == json_key_head_sha {
-                        let artifact_id_json_key_sha = elem.id;
-
-                        dbg!(artifact_id_json_key_sha);
+                    if artifact.workflow_run.head_sha == workflow_run.head_sha {
+                        dbg!(artifact.id);
 
                         // Download artifact
-                        return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/artifacts/{}.zip", artifact_id_json_key_sha));
+                        return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/artifacts/{}.zip", artifact.id));
                     }
                 }
             }
