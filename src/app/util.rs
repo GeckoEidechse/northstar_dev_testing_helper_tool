@@ -204,16 +204,11 @@ fn get_mods_download_link(
             continue;
         }
 
-        // Get branch name
-        let json_key_ref = pull_request.head.gh_ref;
-
-        // Get repo name
-        let json_key_fullname = pull_request.head.repo.full_name;
-
         // Use repo and branch name to get download link
         let download_url = format!(
             "https://github.com/{}/archive/refs/heads/{}.zip",
-            json_key_fullname, json_key_ref
+            pull_request.head.repo.full_name, // repo name
+            pull_request.head.gh_ref,         // branch name
         );
         return Ok(download_url);
     }
