@@ -30,6 +30,18 @@ struct Artifact {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+struct CommitHead {
+    sha: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct PullsApiResponseElement {
+    number: i64,
+    merge_commit_sha: String,
+    head: CommitHead,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 struct ArtifactsResponse {
     artifacts: Vec<Artifact>,
 }
@@ -222,30 +234,28 @@ fn get_launcher_download_link(
     };
     let runs_response: ActionsRunsResponse = serde_json::from_value(runs_json_response).unwrap();
 
+    let pulls_response: Vec<PullsApiResponseElement> =
+        serde_json::from_value(json_response).unwrap();
+
     // Get top commit SHA
-    for elem in json_response.as_array().unwrap() {
+    for elem in pulls_response {
+        // let pulls_api_element: PullsApiResponseElement = serde_json::from_value(elem).unwrap();
+
         // Early return if PR number is not the right one
-        if elem.get("number").and_then(|value| value.as_i64()).unwrap() != pr_number {
+        if elem.number != pr_number {
             continue;
         }
 
         // Get merge commit sha as short version is part of filename
-        let json_key_merge_commit_sha = elem
-            .get("merge_commit_sha")
-            .and_then(|value| value.as_str())
-            .unwrap();
+        let json_key_merge_commit_sha = elem.merge_commit_sha;
 
         // Get head commit sha of PR
-        let json_key_sha = elem
-            .get("head")
-            .and_then(|value| value.get("sha"))
-            .and_then(|value| value.as_str())
-            .unwrap();
+        let json_key_sha = elem.head.sha;
 
         // Cross-reference PR head commit sha against workflow runs
         for elem in &runs_response.workflow_runs {
             // Get commit show on which run was performed
-            let json_key_head_sha = &elem.head_sha;
+            let json_key_head_sha = elem.head_sha.clone();
 
             // Get run ID
             let json_key_id = elem.id;
@@ -253,8 +263,8 @@ fn get_launcher_download_link(
             // If head commit sha of run and PR match, grab CI output
             if json_key_head_sha == json_key_sha {
                 dbg!(json_key_id);
-                dbg!(json_key_sha);
-                dbg!(json_key_merge_commit_sha);
+                // dbg!(json_key_sha);
+                dbg!(json_key_merge_commit_sha.clone());
 
                 // Check artifacts
                 println!("Checking: https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
@@ -271,7 +281,7 @@ fn get_launcher_download_link(
                 for elem in artifacts_response.artifacts {
                     // Make sure run is from PR head commit
                     let current_run_json_key_sha = elem.workflow_run.head_sha;
-                    if &current_run_json_key_sha == json_key_head_sha {
+                    if current_run_json_key_sha == json_key_head_sha {
                         let artifact_id_json_key_sha = elem.id;
 
                         dbg!(artifact_id_json_key_sha);
