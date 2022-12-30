@@ -11,7 +11,7 @@ use anyhow::anyhow;
 
 fn unzip(zip_file_name: &str) -> String {
     let fname = std::path::Path::new(zip_file_name);
-    let file = fs::File::open(&fname).unwrap();
+    let file = fs::File::open(fname).unwrap();
 
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
@@ -51,7 +51,7 @@ fn unzip(zip_file_name: &str) -> String {
             // );
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
-                    fs::create_dir_all(&p).unwrap();
+                    fs::create_dir_all(p).unwrap();
                 }
             }
             let mut outfile = fs::File::create(&outpath).unwrap();
@@ -74,7 +74,7 @@ fn unzip(zip_file_name: &str) -> String {
 fn unzip_launcher_zip(zip_file_name: &str) -> String {
     let outfolder_name = "ns-dev-test-helper-temp-pr-files";
     let fname = std::path::Path::new(zip_file_name);
-    let file = fs::File::open(&fname).unwrap();
+    let file = fs::File::open(fname).unwrap();
 
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
@@ -104,7 +104,7 @@ fn unzip_launcher_zip(zip_file_name: &str) -> String {
             );
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
-                    fs::create_dir_all(&p).unwrap();
+                    fs::create_dir_all(p).unwrap();
                 }
             }
             let mut outfile =
@@ -319,7 +319,7 @@ fn add_batch_file(game_install_path: &str) {
     let display = path.display();
 
     // Open a file in write-only mode, returns `io::Result<File>`
-    let mut file = match File::create(&path) {
+    let mut file = match File::create(path) {
         Err(why) => panic!("couldn't create {}: {}", display, why),
         Ok(file) => file,
     };
