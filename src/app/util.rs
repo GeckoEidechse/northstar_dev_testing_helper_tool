@@ -37,8 +37,7 @@ struct CommitHead {
 #[derive(Debug, Deserialize, Clone)]
 struct PullsApiResponseElement {
     number: i64,
-    #[serde(rename = "merge_commit_sha")]
-    _merge_commit_sha: String,
+    // merge_commit_sha: String,
     head: CommitHead,
 }
 
