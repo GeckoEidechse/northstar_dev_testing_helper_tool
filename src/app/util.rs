@@ -30,8 +30,16 @@ struct Artifact {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+struct Repo {
+    full_name: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 struct CommitHead {
     sha: String,
+    #[serde(rename = "ref")]
+    gh_ref: String,
+    repo: Repo,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -187,31 +195,20 @@ fn get_mods_download_link(
     // {pr object} -> number == pr_number
     //             -> head -> ref
     //                     -> repo -> full_name
-    for pull_request in json_response.as_array().unwrap() {
+    let pulls_response: Vec<PullsApiResponseElement> =
+        serde_json::from_value(json_response).unwrap();
+
+    for pull_request in pulls_response {
         // Early return if PR number is not the right one
-        if pull_request
-            .get("number")
-            .and_then(|value| value.as_i64())
-            .unwrap()
-            != pr_number
-        {
+        if pull_request.number != pr_number {
             continue;
         }
 
         // Get branch name
-        let json_key_ref = pull_request
-            .get("head")
-            .and_then(|value| value.get("ref"))
-            .and_then(|value| value.as_str())
-            .unwrap();
+        let json_key_ref = pull_request.head.gh_ref;
 
         // Get repo name
-        let json_key_fullname = pull_request
-            .get("head")
-            .and_then(|value| value.get("repo"))
-            .and_then(|value| value.get("full_name"))
-            .and_then(|value| value.as_str())
-            .unwrap();
+        let json_key_fullname = pull_request.head.repo.full_name;
 
         // Use repo and branch name to get download link
         let download_url = format!(
