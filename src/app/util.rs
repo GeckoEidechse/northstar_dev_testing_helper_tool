@@ -238,27 +238,19 @@ fn get_launcher_download_link(
         serde_json::from_value(json_response).unwrap();
 
     // Get top commit SHA
-    for elem in pulls_response {
-        // let pulls_api_element: PullsApiResponseElement = serde_json::from_value(elem).unwrap();
-
+    for pull_request in pulls_response {
         // Early return if PR number is not the right one
-        if elem.number != pr_number {
+        if pull_request.number != pr_number {
             continue;
         }
-
-        // Get merge commit sha as short version is part of filename
-        let json_key_merge_commit_sha = elem.merge_commit_sha;
-
-        // Get head commit sha of PR
-        let json_key_sha = elem.head.sha;
 
         // Cross-reference PR head commit sha against workflow runs
         for workflow_run in &runs_response.workflow_runs {
             // If head commit sha of run and PR match, grab CI output
-            if workflow_run.head_sha == json_key_sha {
+            if workflow_run.head_sha == pull_request.head.sha {
                 dbg!(workflow_run.id);
                 // dbg!(json_key_sha);
-                dbg!(json_key_merge_commit_sha.clone());
+                dbg!(pull_request.merge_commit_sha.clone());
 
                 // Check artifacts
                 let api_url = format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", workflow_run.id);
