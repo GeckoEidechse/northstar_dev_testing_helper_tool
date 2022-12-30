@@ -186,6 +186,7 @@ pub fn check_github_api(url: &str) -> Result<serde_json::Value, Box<dyn Error>> 
     Ok(json)
 }
 
+/// Gets GitHub download link of a mods PR
 fn get_mods_download_link(
     pr_number: i64,
     json_response: serde_json::Value,
@@ -216,6 +217,7 @@ fn get_mods_download_link(
     ))
 }
 
+/// Gets `nightly.link` artifact download link of a launcher PR
 fn get_launcher_download_link(
     pr_number: i64,
     json_response: serde_json::Value,
@@ -268,6 +270,7 @@ fn get_launcher_download_link(
     ))
 }
 
+/// Downloads a file from given URL
 fn download_zip(download_url: String, location: String) -> Result<(), anyhow::Error> {
     println!("Downloading file");
     let user_agent = "GeckoEidechse/northstar-dev-testing-helper-tool";
@@ -313,6 +316,7 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> 
     Ok(())
 }
 
+/// Adds a batch file that allows for launching Northstar with mods PR profile
 fn add_batch_file(game_install_path: &str) {
     let batch_path = format!("{}/r2ns-launch-mod-pr-version.bat", game_install_path);
     let path = Path::new(&batch_path);
@@ -385,6 +389,7 @@ pub fn find_game_install_path() -> Result<String, anyhow::Error> {
     ))
 }
 
+/// Downloads selected launcher PR and extracts it into game install path
 pub fn apply_launcher_pr(
     pr_number: i64,
     game_install_path: &str,
@@ -431,6 +436,7 @@ pub fn apply_launcher_pr(
     Ok(())
 }
 
+/// Downloads selected mods PR and extracts it into profile in game install path
 pub fn apply_mods_pr(
     pr_number: i64,
     game_install_path: &str,
