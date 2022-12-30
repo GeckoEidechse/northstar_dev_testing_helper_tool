@@ -9,6 +9,24 @@ use reqwest::header::USER_AGENT;
 
 use anyhow::anyhow;
 
+use serde::Deserialize;
+
+// GitHub API response JSON elements as structs
+#[derive(Debug, Deserialize, Clone)]
+struct WorkflowRun {
+    head_sha: String,
+}
+#[derive(Debug, Deserialize, Clone)]
+struct Artifact {
+    id: u64,
+    workflow_run: WorkflowRun,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct ArtifactsResponse {
+    artifacts: Vec<Artifact>,
+}
+
 fn unzip(zip_file_name: &str) -> String {
     let fname = std::path::Path::new(zip_file_name);
     let file = fs::File::open(fname).unwrap();
@@ -236,24 +254,23 @@ fn get_launcher_download_link(
 
                 // Check artifacts
                 println!("Checking: https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id);
-                let artifacts_json_response = check_github_api(&format!("https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts", json_key_id))
-                    .expect("Failed request");
+                let artifacts_response: ArtifactsResponse = serde_json::from_value(
+                    check_github_api(
+                        &format!(
+                            "https://api.github.com/repos/R2Northstar/NorthstarLauncher/actions/runs/{}/artifacts",
+                            json_key_id
+                        )
+                    ).expect("Failed request")
+                ).unwrap();
 
                 // Iterate over artifacts
-                for elem in artifacts_json_response
-                    .get("artifacts")
-                    .and_then(|value| value.as_array())
-                    .unwrap()
-                {
+                for elem in artifacts_response.artifacts {
                     // Make sure run is from PR head commit
-                    let current_run_json_key_sha = elem
-                        .get("workflow_run")
-                        .and_then(|value| value.get("head_sha"))
-                        .and_then(|value| value.as_str())
-                        .unwrap();
+                    let current_run_json_key_sha = elem.workflow_run.head_sha;
                     if current_run_json_key_sha == json_key_head_sha {
-                        let artifact_id_json_key_sha =
-                            elem.get("id").and_then(|value| value.as_i64()).unwrap();
+                        let artifact_id_json_key_sha = elem.id;
+
+                        dbg!(artifact_id_json_key_sha);
 
                         // Download artifact
                         return Ok(format!("https://nightly.link/R2Northstar/NorthstarLauncher/actions/artifacts/{}.zip", artifact_id_json_key_sha));
