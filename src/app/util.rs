@@ -187,21 +187,26 @@ fn get_mods_download_link(
     // {pr object} -> number == pr_number
     //             -> head -> ref
     //                     -> repo -> full_name
-    for elem in json_response.as_array().unwrap() {
+    for pull_request in json_response.as_array().unwrap() {
         // Early return if PR number is not the right one
-        if elem.get("number").and_then(|value| value.as_i64()).unwrap() != pr_number {
+        if pull_request
+            .get("number")
+            .and_then(|value| value.as_i64())
+            .unwrap()
+            != pr_number
+        {
             continue;
         }
 
         // Get branch name
-        let json_key_ref = elem
+        let json_key_ref = pull_request
             .get("head")
             .and_then(|value| value.get("ref"))
             .and_then(|value| value.as_str())
             .unwrap();
 
         // Get repo name
-        let json_key_fullname = elem
+        let json_key_fullname = pull_request
             .get("head")
             .and_then(|value| value.get("repo"))
             .and_then(|value| value.get("full_name"))
