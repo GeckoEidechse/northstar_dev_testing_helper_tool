@@ -205,6 +205,11 @@ impl eframe::App for TemplateApp {
             );
             egui::warn_if_debug_build(ui);
 
+            // Deprecation notice
+            ui.hyperlink_to(
+                "Note that this tool has been deprecated in favour of integrating functionality into FlightCore!",
+                "https://github.com/R2NorthstarTools/FlightCore/blob/ca65fb29fc2895e1912d931b4f486388fabaf7bd/docs/DEV-TOOLS.md#northstar",
+            );
             // Filter field
             ui.label("Filter:");
             ui.text_edit_singleline(filter_content_string);
